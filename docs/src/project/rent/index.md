@@ -1,0 +1,1 @@
+[黑马程序员Java项目《好客租房》，Java企业级解决方案（Spring全家桶+分布式解决方案+微信授权+爬虫解决方案等）_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1sZ4y1F7PD/)
