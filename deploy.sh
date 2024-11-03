@@ -4,7 +4,7 @@
 set -e
 
 # 构建
-vitepress build docs
+#vitepress build docs
 
 # 进入待发布的目录
 cd docs/.vitepress/dist
