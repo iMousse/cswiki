@@ -5,7 +5,7 @@ import {markdown} from './config/markdown';
 import {themeConfig} from './config/theme';
 
 export default withMermaid({
-    base: '/cswiki/',
+    base: '/vite/',
     lang: metaData.lang,
     title: metaData.title,
     description: metaData.description,
