@@ -30,7 +30,7 @@ export const nav: DefaultTheme.Config['nav'] = [
 
         ],
         // 当前页面处于匹配路径下时, 对应导航菜单将突出显示
-        activeMatch: '/src/base'
+        // activeMatch: '/src/base'
     },
     {
         text: '🛠️ 项目实战',
@@ -61,7 +61,7 @@ export const nav: DefaultTheme.Config['nav'] = [
         activeMatch: '/src/project'
     },
     {
-        text: '💼 面试宝典', link: '/src/summarize/index', activeMatch: '/src/summarize',
+        text: '💼 面试宝典', link: '/src/base/summarize/index', activeMatch: '/src/base/summarize',
     }
 
 ];

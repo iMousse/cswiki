@@ -43,5 +43,5 @@ features:
     title: 面试宝典
     details: 取名面试宝典并不是为了面试而面试，而是通过提问的手段进行思考，然后将自己的思考表达出来。
     linkText: 开始刷题
-    link: src/summarize/index.md
+    link: src/base/summarize/index.md
 ---

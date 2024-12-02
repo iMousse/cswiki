@@ -413,12 +413,12 @@ export const sidebar: DefaultTheme.Config["sidebar"] = {
                 ]
             }
         ],
-    "/src/summarize":
+    "/src/base/summarize":
         [
             {
                 text: "基础知识",
                 collapsed: false,
-                base: "/src/summarize/",
+                base: "/src/base/summarize/",
                 items: [
                     {text: "Java基础", link: "java-base"},
                     {text: "Java集合", link: "java-collection"},
@@ -430,7 +430,7 @@ export const sidebar: DefaultTheme.Config["sidebar"] = {
             {
                 text: "服务框架",
                 collapsed: false,
-                base: "/src/summarize/",
+                base: "/src/base/summarize/",
                 items: [
                     {text: "数据库篇", link: "mysql"},
                     {text: "缓存篇", link: "redis"},
@@ -442,7 +442,7 @@ export const sidebar: DefaultTheme.Config["sidebar"] = {
             {
                 text: "场景技术",
                 collapsed: false,
-                base: "/src/summarize/",
+                base: "/src/base/summarize/",
                 items: [
                     {text: "设计模式篇", link: "gof"},
                     {text: "场景技术篇", link: "project-practice"},
