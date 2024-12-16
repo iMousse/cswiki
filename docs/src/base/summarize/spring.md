@@ -10,6 +10,7 @@
 - Spring 框架中的单例 bean 是线程安全的吗？
 - 什么是 AOP,你们项目中有没有使用到 AOP ？
 - Spring 中的事务是如何实现的
+- Spring 中有哪些事务传播行为
 - Spring 事务失效的场景有哪些
 - Spring 的 bean 的生命周期
 - Spring 中的循环引用
@@ -361,6 +362,10 @@ Spring 本质是 AOP 来实现的，对方法的前后进行拦截，在执行�
 :::
 
 <br/>
+
+### Spring 事务传播行为
+
+
 
 ### Spring 事务失效
 

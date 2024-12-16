@@ -1,7 +1,5 @@
 # 面试专题-设计模式
 
-## 前言
-
 在平时的开发中，涉及到设计模式的有两块内容，第一个是我们平时使用的框架（比如spring、mybatis等），第二个是我们自己开发业务使用的设计模式。
 
 面试官一般比较关心的是你在开发过程中，有没有使用过设计模式，或者你在简历上写了关于设计模式的描述，那么这样我们就需要重点关心自己开发中用过的设计模式。
@@ -18,9 +16,7 @@
 
 
 
-## 1 工厂方法模式
-
-#### 1.1 概述
+## 工厂方法模式
 
 需求：设计一个咖啡店点餐系统。  
 
@@ -30,17 +26,7 @@
 
 ![](https://mugrain.oss-cn-hangzhou.aliyuncs.com/cswiki/简单工厂.jpg)
 
->1.类图中的符号
->
->* +：表示public
->
->* -：表示private
->
->* #：表示protected
->
->2.泛化关系(继承)用带空心三角箭头的实线来表示
->
->3.依赖关系使用带箭头的虚线来表示
+
 
 ```java
 package com.itheima.factory.simple;
@@ -67,12 +53,9 @@ public class CoffeeStore {
         return coffee;
     }
 }
-
 ```
 
-
-
-在java中，万物皆对象，这些对象都需要创建，如果创建的时候直接new该对象，就会对该对象耦合严重，假如我们要更换对象，所有new对象的地方都需要修改一遍，这显然违背了软件设计的**开闭原则**。如果我们使用工厂来生产对象，我们就只和工厂打交道就可以了，彻底和对象解耦，如果要更换对象，直接在工厂里更换该对象即可，达到了与对象解耦的目的；所以说，工厂模式最大的优点就是：**解耦**。
+在 Java中，万物皆对象，这些对象都需要创建，如果创建的时候直接new该对象，就会对该对象耦合严重，假如我们要更换对象，所有new对象的地方都需要修改一遍，这显然违背了软件设计的**开闭原则**。如果我们使用工厂来生产对象，我们就只和工厂打交道就可以了，彻底和对象解耦，如果要更换对象，直接在工厂里更换该对象即可，达到了与对象解耦的目的；所以说，工厂模式最大的优点就是：**解耦**。
 
 >开闭原则：**对扩展开放，对修改关闭**。在程序需要进行拓展的时候，不能去修改原有的代码，实现一个热插拔的效果。简言之，是为了使程序的扩展性好，易于维护和升级。
 
@@ -82,11 +65,13 @@ public class CoffeeStore {
 * 工厂方法模式
 * 抽象工厂模式
 
-#### 1.2 简单工厂模式
+
+
+#### 简单工厂模式
 
 简单工厂不是一种设计模式，反而比较像是一种编程习惯。
 
-##### 1.2.1 结构
+ **结构**
 
 简单工厂包含如下角色：
 
@@ -94,7 +79,9 @@ public class CoffeeStore {
 * 具体产品 ：实现或者继承抽象产品的子类
 * 具体工厂 ：提供了创建产品的方法，调用者通过该方法来获取产品。
 
-##### 1.2.2 实现
+
+
+**实现**
 
 现在使用简单工厂对上面案例进行改进，类图如下：
 
@@ -140,17 +127,15 @@ public class CoffeeStore {
 
 后期如果再加新品种的咖啡，我们势必要需求修改SimpleCoffeeFactory的代码，违反了开闭原则。工厂类的客户端可能有很多，比如创建美团外卖等，这样只需要修改工厂类的代码，省去其他的修改操作。
 
-##### 1.2.3 优缺点
+**总结**
 
-**优点：**
+优点：封装了创建对象的过程，可以通过参数直接获取对象。把对象的创建和业务逻辑层分开，这样以后就避免了修改客户代码，如果要实现新产品直接修改工厂类，而不需要在原代码中修改，这样就降低了客户代码修改的可能性，更加容易扩展。
 
-封装了创建对象的过程，可以通过参数直接获取对象。把对象的创建和业务逻辑层分开，这样以后就避免了修改客户代码，如果要实现新产品直接修改工厂类，而不需要在原代码中修改，这样就降低了客户代码修改的可能性，更加容易扩展。
+缺点：增加新产品时还是需要修改工厂类的代码，违背了“开闭原则”。
 
-**缺点：**
 
-增加新产品时还是需要修改工厂类的代码，违背了“开闭原则”。
 
-##### 1.2.4 扩展
+##### 扩展
 
 **静态工厂**
 
@@ -714,7 +699,6 @@ public class LoginTypeConfig {
     private Map<String,String> types;
 
 }
-
 ```
 
 改造service代码
@@ -742,6 +726,8 @@ public class UserService {
 
 大家可以看到我们使用了设计模式之后，业务层的代码就清爽多了，如果后期有新的需求改动，比如加入了QQ登录，我们只需要添加对应的策略就可以，无需再改动业务层代码。
 
+
+
 #### 2.4.4 举一反三
 
 其实像这样的需求，在日常开发中非常常见，场景有很多，以下的情景都可以使用工厂模式+策略模式解决比如：
@@ -765,6 +751,276 @@ public class UserService {
   - 20kg以上
 
 一句话总结：**只要代码中有冗长的 if-else 或 switch 分支判断都可以采用策略模式优化**
+
+
+
+### 拓展
+
+通过工厂模式和策略模式实现不同 OSS 上传的功能
+
+抽象的策略类：
+
+```java
+/**
+ * 云存储(支持七牛、阿里云、腾讯云)
+ *
+ * @author Mark sunlightcs@gmail.com
+ */
+public abstract class AbstractCloudStorageService {
+    /** 云存储配置信息 */
+    CloudStorageConfig config;
+
+    /**
+     * 文件路径
+     * @param prefix 前缀
+     * @param suffix 后缀
+     * @return 返回上传路径
+     */
+    public String getPath(String prefix, String suffix) {
+        //生成uuid
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        //文件路径
+        String path = DateUtils.format(new Date(), "yyyyMMdd") + "/" + uuid;
+
+        if(StringUtils.isNotBlank(prefix)){
+            path = prefix + "/" + path;
+        }
+
+        return path + "." + suffix;
+    }
+
+    /**
+     * 文件上传
+     * @param data    文件字节数组
+     * @param path    文件路径，包含文件名
+     * @return        返回http地址
+     */
+    public abstract String upload(byte[] data, String path);
+
+    /**
+     * 文件上传
+     * @param data     文件字节数组
+     * @param suffix   后缀
+     * @return         返回http地址
+     */
+    public abstract String uploadSuffix(byte[] data, String suffix);
+
+    /**
+     * 文件上传
+     * @param inputStream   字节流
+     * @param path          文件路径，包含文件名
+     * @return              返回http地址
+     */
+    public abstract String upload(InputStream inputStream, String path);
+
+    /**
+     * 文件上传
+     * @param inputStream  字节流
+     * @param suffix       后缀
+     * @return             返回http地址
+     */
+    public abstract String uploadSuffix(InputStream inputStream, String suffix);
+
+}
+```
+
+具体的策略类：
+
+阿里云实现类
+
+```java
+/**
+ * 阿里云存储
+ *
+ * @author Mark sunlightcs@gmail.com
+ */
+public class AliyunCloudStorageService extends AbstractCloudStorageService {
+
+    public AliyunCloudStorageService(CloudStorageConfig config){
+        this.config = config;
+    }
+
+    @Override
+    public String upload(byte[] data, String path) {
+        return upload(new ByteArrayInputStream(data), path);
+    }
+
+    @Override
+    public String upload(InputStream inputStream, String path) {
+        OSSClient client = new OSSClient(config.getAliyunEndPoint(), config.getAliyunAccessKeyId(),
+                config.getAliyunAccessKeySecret());
+        try {
+            client.putObject(config.getAliyunBucketName(), path, inputStream);
+            client.shutdown();
+        } catch (Exception e){
+            throw new RenException(ErrorCode.OSS_UPLOAD_FILE_ERROR, e, "");
+        }
+
+        return config.getAliyunDomain() + "/" + path;
+    }
+
+    @Override
+    public String uploadSuffix(byte[] data, String suffix) {
+        return upload(data, getPath(config.getAliyunPrefix(), suffix));
+    }
+
+    @Override
+    public String uploadSuffix(InputStream inputStream, String suffix) {
+        return upload(inputStream, getPath(config.getAliyunPrefix(), suffix));
+    }
+}
+```
+
+腾讯云实现类
+
+```java
+
+/**
+ * 腾讯云存储
+ *
+ * @author Mark sunlightcs@gmail.com
+ */
+public class QcloudCloudStorageService extends AbstractCloudStorageService {
+    private COSCredentials credentials;
+    private ClientConfig clientConfig;
+
+    public QcloudCloudStorageService(CloudStorageConfig config){
+        this.config = config;
+
+        //初始化
+        init();
+    }
+
+    private void init(){
+        //1、初始化用户身份信息(secretId, secretKey)
+        credentials = new BasicCOSCredentials(config.getQcloudSecretId(), config.getQcloudSecretKey());
+    	
+    	//2、设置bucket的区域, COS地域的简称请参照 https://cloud.tencent.com/document/product/436/6224
+        clientConfig = new ClientConfig(new Region(config.getQcloudRegion()));
+    }
+
+    @Override
+    public String upload(byte[] data, String path) {
+        return upload(new ByteArrayInputStream(data), path);
+    }
+
+    @Override
+    public String upload(InputStream inputStream, String path) {
+    	try {
+            COSClient client = new COSClient(credentials, clientConfig);
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(inputStream.available());
+            String bucketName = config.getQcloudBucketName() +"-"+ config.getQcloudAppId();
+            PutObjectRequest request = new PutObjectRequest(bucketName, path, inputStream, metadata);
+            PutObjectResult result = client.putObject(request);
+            
+            client.shutdown();
+            if(result.getETag() == null){
+                throw new RenException(ErrorCode.OSS_UPLOAD_FILE_ERROR, "");
+            }
+        } catch (IOException e) {
+            throw new RenException(ErrorCode.OSS_UPLOAD_FILE_ERROR, e, "");
+        }
+
+        return config.getQcloudDomain() + "/" + path;
+    }
+
+    @Override
+    public String uploadSuffix(byte[] data, String suffix) {
+        return upload(data, getPath(config.getQcloudPrefix(), suffix));
+    }
+
+    @Override
+    public String uploadSuffix(InputStream inputStream, String suffix) {
+        return upload(inputStream, getPath(config.getQcloudPrefix(), suffix));
+    }
+}
+```
+
+工厂类：
+
+```java
+public final class OSSFactory {
+    private static SysParamsService sysParamsService;
+
+    static {
+        OSSFactory.sysParamsService = SpringContextUtils.getBean(SysParamsService.class);
+    }
+
+    public static AbstractCloudStorageService build(){
+        //获取云存储配置信息
+        CloudStorageConfig config = sysParamsService.getValueObject(Constant.CLOUD_STORAGE_CONFIG_KEY, CloudStorageConfig.class);
+
+        if(config.getType() == Constant.CloudService.QINIU.getValue()){
+            return new QiniuCloudStorageService(config);
+        }else if(config.getType() == Constant.CloudService.ALIYUN.getValue()){
+            return new AliyunCloudStorageService(config);
+        }else if(config.getType() == Constant.CloudService.QCLOUD.getValue()){
+            return new QcloudCloudStorageService(config);
+        }
+
+        return null;
+    }
+
+}
+```
+
+具体使用：
+
+```java
+@RestController
+@RequestMapping("sys/oss")
+@Api(tags="文件上传")
+public class SysOssController {
+	@Autowired
+	private SysOssService sysOssService;
+  @Autowired
+  private SysParamsService sysParamsService;
+
+  private final static String KEY = Constant.CLOUD_STORAGE_CONFIG_KEY;
+    
+	@PostMapping("upload")
+	@ApiOperation(value = "上传文件")
+	@RequiresPermissions("sys:oss:all")
+	public Result<Map<String, Object>> upload(@RequestParam("file") MultipartFile file) throws Exception {
+		if (file.isEmpty()) {
+			return Result.error(ErrorCode.UPLOAD_FILE_EMPTY);
+		}
+
+		//上传文件
+		String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+		String url = OSSFactory.build().uploadSuffix(file.getBytes(), extension);
+
+		//保存文件信息
+		SysOssEntity ossEntity = new SysOssEntity();
+		ossEntity.setUrl(url);
+		ossEntity.setCreateDate(new Date());
+		sysOssService.insert(ossEntity);
+
+		Map<String, Object> data = new HashMap<>(1);
+		data.put("src", url);
+
+		return Result.ok(data);
+	}
+}
+```
+
+
+
+你是如何实现 OSS 上传的功能
+
+
+
+你是如何实现根据不同方式进行登陆的。
+
+我们通过工厂方法和策略模式实现了登陆。工厂方法类通过登陆请求中的登陆方式，获取到用户的抽象策略类，里面定义了登陆的接口。具体的登陆接口由具体的策略类实现。比如通过手机号登陆或者通过微信扫码登录。当调用了登陆方法后，就会由具体的策略类来进行实现。
+
+
+
+我们采用工厂方法和策略模式来实现的 OSS 上传。当我们调用上传文件接口时，会调用 OSSFactory 的 build 方法来获取 OSS 上传的抽象的策略类。工厂类的静态代码块来获取系统的参数服务，在静态方法中获取 OSS的参数配置，通过参数配置返回具体的策略类实现。比如阿里云或腾讯云。然后调用上传方法，就会调用具体的策略类来进行实现。
+
+
 
 
 

@@ -446,8 +446,8 @@ export const sidebar: DefaultTheme.Config["sidebar"] = {
                 items: [
                     {text: "设计模式篇", link: "gof"},
                     {text: "场景技术篇", link: "project-practice"},
-                    {text: "面试准备篇", link: "interview"},
                     {text: "知识点汇总", link: "index"},
+                    {text: "面试准备篇", link: "interview"},
                 ]
             },
         ],
