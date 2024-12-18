@@ -266,7 +266,7 @@ export const sidebar: DefaultTheme.Config["sidebar"] = {
                     {text: "微服务保护", link: "07高级篇-微服务保护"},
                     {text: "可靠消息服务", link: "09高级篇-可靠消息服务"},
                     {text: "多级缓存技术", link: "10高级篇-多级缓存技术"},
-                    {text: "微服务面试题", link: "11面试篇-微服务面试题"},
+                    {text: "微服务面试题", link: "11面试篇-微服务源码解析"},
                 ]
             },
             {
