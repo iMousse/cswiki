@@ -5,6 +5,8 @@
 
 [并发编程入门到精通](../../base/juc/index.md)
 
+
+
 ## 基础知识
 
 ### 线程和进程的区别？
@@ -2894,6 +2896,333 @@ public ScheduledThreadPoolExecutor(int corePoolSize) {
 
 :::
 
+### 异步编排
+
+在 Java 中，`CompletableFuture`提供了一种强大的方式来进行异步编程和任务编排，以下是一些常见的使用方法
+
+#### 异步对象
+
+CompletableFuture 提供了四个静态方法来创建一个异步操作
+
+```java
+public static CompletableFuture<Void> runAsync(Runnable runnable)
+
+public static CompletableFuture<Void> runAsync(Runnable runnable,Executor executor)
+  
+public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier) 
+  
+public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier,Executor executor)
+```
+
+- **runXxx 都是没有返回结果的，supplyXxxx都是可以获取返回结果的**
+- 可以传入自定义的线程池，否则就是用默认的线程池
+
+- 根据方法的返回类型来判断是否该方法是否有返回类型
+
+```java
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+        System.out.println("main....start.....");
+        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
+            System.out.println("当前线程：" + Thread.currentThread().getId());
+            int i = 10 / 2;
+            System.out.println("运行结果：" + i);
+        }, executor);
+
+        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+            System.out.println("当前线程：" + Thread.currentThread().getId());
+            int i = 10 / 2;
+            System.out.println("运行结果：" + i);
+            return i;
+        }, executor);
+        Integer integer = future.get();
+
+        System.out.println("main....stop....." + integer);
+    }
+```
+
+
+
+#### 回调方法
+
+```java
+public CompletableFuture<T> whenComplete(BiConsumer<? super T, ? super Throwable> action) 
+
+public CompletableFuture<T> whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action) 
+
+public CompletableFuture<T> whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action, Executor executor)
+
+public CompletableFuture<T> exceptionally(Function<Throwable, ? extends T> fn) 
+```
+
+whenComplete 可以处理正常和异常的计算结果，exceptionally 处理异常情况
+
+whenComplete 和 whenCompleteAsync 的区别
+
+​		whenComplete ：是执行当前任务的线程继续执行 whencomplete 的任务
+
+​		whenCompleteAsync： 是执行把 whenCompleteAsync 这个任务继续提交给线程池来进行执行
+
+**方法不以 Async 结尾，意味着 Action 使用相同的线程执行，而 Async 可能会使用其他线程执行（如果是使用相同的线程池，也可能会被同一个线程选中执行）**
+
+```java
+CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+    System.out.println("当前线程：" + Thread.currentThread().getId());
+    int i = 10 / 0;
+    System.out.println("运行结果：" + i);
+    return i;
+}, executor).whenComplete((res,exception) ->{
+    // 虽然能得到异常信息，但是没法修改返回的数据
+    System.out.println("异步任务成功完成了...结果是：" +res + "异常是：" + exception);
+}).exceptionally(throwable -> {
+    // 可以感知到异常，同时返回默认值
+    return 10;
+});
+```
+
+
+
+handle 方法也可以实现相同效果，和 complete 一样，可以对结果做最后的处理（可处理异常），可改变返回值
+
+```java
+public <U> CompletableFuture<U> handle(BiFunction<? super T, Throwable, ? extends U> fn) 
+
+public <U> CompletableFuture<U> handleAsync(BiFunction<? super T, Throwable, ? extends U> fn) 
+
+public <U> CompletableFuture<U> handleAsync(BiFunction<? super T, Throwable, ? extends U> fn, Executor executor) 
+```
+
+代码演示
+
+```java
+CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+    System.out.println("当前线程：" + Thread.currentThread().getId());
+    int i = 10 / 2;
+    System.out.println("运行结果：" + i);
+    return i;
+}, executor).handle((res,thr) ->{
+    if (res != null ) {
+        return res * 2;
+    }
+    if (thr != null) {
+        return 0;
+    }
+    return 0;
+});
+```
+
+
+
+#### 串行方法
+
+```java
+public <U> CompletableFuture<U> thenApply(Function<? super T,? extends U> fn)
+
+public <U> CompletableFuture<U> thenApplyAsync(Function<? super T,? extends U> fn) 
+
+public <U> CompletableFuture<U> thenApplyAsync(Function<? super T,? extends U> fn, Executor executor) 
+
+public CompletableFuture<Void> thenAccept(Consumer<? super T> action) 
+
+public CompletableFuture<Void> thenAcceptAsync(Consumer<? super T> action) 
+
+public CompletableFuture<Void> thenAcceptAsync(Consumer<? super T> action,Executor executor) 
+
+public CompletableFuture<Void> thenRun(Runnable action) 
+  
+public CompletableFuture<Void> thenRunAsync(Runnable action) 
+
+public CompletableFuture<Void> thenRunAsync(Runnable action,Executor executor) 
+```
+
+- thenApply 方法：**当一个线程依赖另一个线程时，获取上一个任务返回的结果，并返回当前任物的返回值**
+
+- thenAccept方法：**消费处理结果，接受任务处理结果，并消费处理，无返回结果**
+
+- thenRun 方法：**只要上面任务执行完成，就开始执行 thenRun ,只是处理完任务后，执行 thenRun的后续操作**
+
+- 带有 Async 默认是异步执行的，同之前，
+
+以上都要前置任务完成
+
+```java
+   /**
+         * 线程串行化，
+         * 1、thenRun:不能获取到上一步的执行结果，无返回值
+         * .thenRunAsync(() ->{
+         *             System.out.println("任务2启动了....");
+         *         },executor);
+         * 2、能接受上一步结果，但是无返回值 thenAcceptAsync
+         * 3、thenApplyAsync 能收受上一步结果，有返回值
+         *
+         */
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            System.out.println("当前线程：" + Thread.currentThread().getId());
+            int i = 10 / 2;
+            System.out.println("运行结果：" + i);
+            return i;
+        }, executor).thenApplyAsync(res -> {
+            System.out.println("任务2启动了..." + res);
+            return "Hello " + res;
+        }, executor);
+        String s = future.get();
+
+        System.out.println("main....stop....." + s);
+```
+
+
+
+#### 任务组合
+
+```java
+public <U,V> CompletableFuture<V> thenCombine(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn) 
+
+public <U,V> CompletableFuture<V> thenCombineAsync(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn) 
+
+public <U,V> CompletableFuture<V> thenCombineAsync(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn, Executor executor) 
+
+public <U> CompletableFuture<Void> thenAcceptBoth(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action)
+
+public <U> CompletableFuture<Void> thenAcceptBothAsync(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action) 
+
+public <U> CompletableFuture<Void> thenAcceptBothAsync(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action, Executor executor) 
+
+public CompletableFuture<Void> runAfterBoth(CompletionStage<?> other,Runnable action) 
+
+public CompletableFuture<Void> runAfterBothAsync(CompletionStage<?> other,Runnable action) 
+
+public CompletableFuture<Void> runAfterBothAsync(CompletionStage<?> other,Runnable action,Executor executor)
+```
+
+两个任务必须都完成，触发该任务
+
+- thenCombine: 组合两个 future，获取两个 future的返回结果，并返回当前任务的返回值
+
+- thenAccpetBoth: 组合两个 future，获取两个 future 任务的返回结果，然后处理任务，没有返回值
+
+- runAfterBoth:组合 两个 future，不需要获取 future 的结果，只需要两个 future处理完成任务后，处理该任务，
+
+```java
+   /**
+         * 两个都完成
+         */
+        CompletableFuture<Integer> future01 = CompletableFuture.supplyAsync(() -> {
+            System.out.println("任务1当前线程：" + Thread.currentThread().getId());
+            int i = 10 / 4;
+            System.out.println("任务1结束：" + i);
+            return i;
+        }, executor);
+
+        CompletableFuture<String> future02 = CompletableFuture.supplyAsync(() -> {
+            System.out.println("任务2当前线程：" + Thread.currentThread().getId());
+            System.out.println("任务2结束：");
+            return "Hello";
+        }, executor);
+
+        // f1 和 f2 执行完成后在执行这个
+//        future01.runAfterBothAsync(future02,() -> {
+//            System.out.println("任务3开始");
+//        },executor);
+
+        // 返回f1 和 f2 的运行结果
+//        future01.thenAcceptBothAsync(future02,(f1,f2) -> {
+//            System.out.println("任务3开始....之前的结果:" + f1 + "==>" + f2);
+//        },executor);
+
+        // f1 和 f2 单独定义返回结果
+        CompletableFuture<String> future = future01.thenCombineAsync(future02, (f1, f2) -> {
+            return f1 + ":" + f2 + "-> Haha";
+        }, executor);
+
+        System.out.println("main....end....." + future.get());
+```
+
+#### 多任务组合
+
+```java
+public static CompletableFuture<Void> allOf(CompletableFuture<?>... cfs) 
+
+public static CompletableFuture<Object> anyOf(CompletableFuture<?>... cfs)
+```
+
+- allOf：**等待所有任务完成**
+
+- anyOf:**只要有一个任务完成**
+
+```java
+        CompletableFuture<String> futureImg = CompletableFuture.supplyAsync(() -> {
+            System.out.println("查询商品的图片信息");
+            return "hello.jpg";
+        });
+
+        CompletableFuture<String> futureAttr = CompletableFuture.supplyAsync(() -> {
+            System.out.println("查询商品的属性");
+            return "黑色+256G";
+        });
+
+        CompletableFuture<String> futureDesc = CompletableFuture.supplyAsync(() -> {
+            try { TimeUnit.SECONDS.sleep(3); } catch (InterruptedException e) { e.printStackTrace(); }
+            System.out.println("查询商品介绍");
+            return "华为";
+        });
+
+        // 等待全部执行完
+//        CompletableFuture<Void> allOf = CompletableFuture.allOf(futureImg, futureAttr, futureDesc);
+//        allOf.get();
+
+        // 只需要有一个执行完
+        CompletableFuture<Object> anyOf = CompletableFuture.anyOf(futureImg, futureAttr, futureDesc);
+        anyOf.get();
+        System.out.println("main....end....." + anyOf.get());
+```
+
+#### 商品详情案例
+
+```java
+@Override
+public SkuItemVo item(Long skuId) throws ExecutionException, InterruptedException {
+    SkuItemVo skuItemVo = new SkuItemVo();
+    // 1、sku基本获取 pms_sku_info
+    CompletableFuture<SkuInfoEntity> infoFuture = CompletableFuture.supplyAsync(() -> {
+        // 根据 skuid 查询出 spuInfo对象
+        SkuInfoEntity info = getById(skuId);
+        skuItemVo.setSkuInfo(info);
+        return info;
+    }, executor);
+
+    CompletableFuture<Void> saleAttrFuture = infoFuture.thenAcceptAsync((res) -> {
+        // 3、获取spu的销售属性组合
+        List<SkuItemSalAttrVo> saleAttrVos = skuSaleAttrValueService.getSaleAttrBySpuId(res.getSpuId());
+        skuItemVo.setSaleAttr(saleAttrVos);
+    }, executor);
+
+    CompletableFuture<Void> descFuture = infoFuture.thenAcceptAsync(res -> {
+        // 4、获取spu的介绍
+        // 通过spuid查询出spu描述信息
+        SpuInfoDescEntity spuInfoDescEntity = spuInfoDescService.getById(res.getSpuId());
+        skuItemVo.setDesc(spuInfoDescEntity);
+    }, executor);
+
+    CompletableFuture<Void> baseFuture = infoFuture.thenAcceptAsync(res -> {
+        // 5、获取spu的规格参数信息
+        List<SpuItemAttrGroupVo> attrGroupVos = attrGroupService.getAttrGroupWithAttrBySpuId(res.getSpuId(), res.getCatalogId());
+        skuItemVo.setGroupAttrs(attrGroupVos);
+    }, executor);
+
+    CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
+        // 2、sku的图片信息 pms_sku_images
+        List<SkuImagesEntity> images = imagesService.getImagesBySkuId(skuId);
+        skuItemVo.setImages(images);
+    }, executor);
+
+    // 等待所有任务完成
+    CompletableFuture.allOf(saleAttrFuture, descFuture, baseFuture, imageFuture).get();
+
+    return skuItemVo;
+}
+```
+
+
+
 ## 场景问题
 
 #### CountDownLatch
@@ -3232,11 +3561,17 @@ public class OrderDetailController {
 }
 ```
 
+
+
 代码优化 CompletableFuture 异步编排
 
 ```
 
 ```
+
+
+
+
 
 
 
@@ -3272,10 +3607,37 @@ public class OrderDetailController {
 >
 > 我当时做了一个文章搜索的功能，用户输入关键字要搜索文章，同时需要保存用户的搜索记录（搜索历史），这块我设计的时候，为了不影响用户的正常搜索，我们采用的异步的方式进行保存的，为了提升性能，我们加入了线程池，也就说在调用异步方法的时候，直接从线程池中获取线程使用。
 
+如何优化多线程场景
 
+在多线程场景中，可从线程本身管理、资源共享与同步、任务分配与执行等方面进行优化，以下是一些具体方法：
 
+线程管理
 
+- **合理设置线程数量**：根据系统资源和任务类型确定合适的线程数量。如果线程过多，会导致频繁的上下文切换，增加系统开销；线程过少，则不能充分利用系统资源。例如，对于 CPU 密集型任务，线程数量一般不宜超过 CPU 核心数；对于 I/O 密集型任务，可以根据 I/O 等待时间和处理时间的比例适当增加线程数量。
+- **使用线程池**：避免频繁创建和销毁线程，通过线程池来管理线程的生命周期。线程池可以复用已创建的线程，减少线程创建和销毁的开销。同时，根据任务的类型和并发度合理配置线程池的参数，如核心线程数、最大线程数、线程空闲时间等。
 
+资源共享与同步
 
+- **缩小锁的粒度**：在多线程访问共享资源时，使用锁来保证数据的一致性。但如果锁的粒度太大，会导致线程的并发度降低。因此，要尽量缩小锁的范围，只对共享资源的关键部分加锁。例如，在对一个链表进行操作时，如果只需要修改其中一个节点，就只对该节点加锁，而不是对整个链表加锁。
+- **使用更高效的同步机制**：除了传统的`synchronized`关键字外，还可以使用`ReentrantLock`、`Semaphore`、`CountDownLatch`等更灵活高效的同步机制。
+  - `ReentrantLock`提供了可重入锁的功能，并且支持公平锁和非公平锁的选择；
+  - `Semaphore`可以控制同时访问资源的线程数量；
+  - `CountDownLatch`可以用于多个线程之间的协调等待。
+- **避免死锁**：在多线程编程中，要注意避免死锁的发生。死锁通常是由于多个线程相互等待对方释放资源而导致的。可以通过合理设计线程的执行顺序、避免嵌套锁的使用、使用资源分配图等方法来预防死锁。
 
-> 
+任务分配与执行
+
+- **任务分解与并行化**：将大型任务分解成多个小任务，让多个线程并行执行，提高任务的执行效率。例如，在对一个大型数组进行排序时，可以将数组分成多个子数组，每个线程负责对一个子数组进行排序，最后再将排序好的子数组合并。
+- **优化任务调度算法**：根据任务的优先级、执行时间等因素，合理调度线程执行任务，提高系统的整体性能。例如，可以采用先来先服务、最短作业优先、优先级调度等算法。
+- **减少线程间的依赖**：尽量减少线程之间的依赖关系，让线程能够独立执行任务，提高线程的并发度。如果线程之间存在依赖关系，会导致线程的等待时间增加，降低系统的性能。
+
+数据结构与算法
+
+- **使用线程安全的数据结构**：在多线程环境中，要使用线程安全的数据结构来存储和操作数据。例如，`ConcurrentHashMap`是线程安全的哈希表，`CopyOnWriteArrayList`是线程安全的动态数组，它们在多线程环境下能够提供高效的读写操作，而不需要额外的加锁操作。
+- **选择合适的算法**：根据多线程的特点，选择合适的算法来解决问题。例如，在对数据进行排序时，可以选择并行排序算法，如`Arrays.parallelSort()`，它能够利用多线程并行执行，提高排序的速度。
+
+异常处理与监控
+
+- **完善的异常处理机制**：在多线程代码中，要建立完善的异常处理机制，及时捕获和处理线程中抛出的异常，避免异常导致整个系统的崩溃。同时，要注意异常的传播和处理方式，避免异常被忽略或处理不当。
+- **性能监控与调优**：对多线程程序进行性能监控，通过工具如`JConsole`、`VisualVM`等，实时查看线程的状态、CPU 使用率、内存使用率等指标，及时发现性能瓶颈和问题，并进行针对性的调优。
+

@@ -31,13 +31,13 @@ features:
     title: 服务框架
     details: 学习Spring的优秀框架和设计思想，为项目实战打下坚实基础，应对抽象泄露最好的方法就是了解抽象。
     linkText: 加深记忆
-    link: src/struct/index.md
+    link: src/base/juc/juc-base.md
   - icon:
       src: /universe.png
     title: 项目实战
     details: 项目分为单体项目和微服务项目，通过项目实战的方式深入了解设计与开发，能用技术手段解决业务需求。
     linkText: 动手实战
-    link: src/project/index.md
+    link: src/project/redis/01-Redis基础.md
   - icon:
       src: /rocket.png
     title: 面试宝典
