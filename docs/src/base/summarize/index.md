@@ -103,47 +103,6 @@ hashset 和 treeset 有什么区别 ?
 
 <br/>
 
-HashMap 和 HashTable 的区别
-
-`HashMap`和`Hashtable`都是 Java 中用于存储键值对的数据结构，它们在功能上有相似之处，但在一些特性上存在区别，以下是详细介绍：
-
-**线程安全性**
-
-- **`Hashtable`**：是线程安全的，其内部的方法大多使用`synchronized`关键字修饰，这意味着在多线程环境下，同一时刻只有一个线程能够访问`Hashtable`的实例方法，从而保证了数据的一致性和完整性。
-- **`HashMap`**：是非线程安全的，在多线程环境下，如果多个线程同时对`HashMap`进行读写操作，可能会导致数据不一致或出现异常情况。如果需要在多线程环境中使用`HashMap`，通常需要使用`Collections.synchronizedMap()`方法对其进行包装，或者使用`ConcurrentHashMap`来保证线程安全。
-
-**空值处理**
-
-- **`Hashtable`**：不允许键或值为`null`。如果尝试将`null`作为键或值放入`Hashtable`中，会抛出`NullPointerException`异常。
-- **`HashMap`**：允许键为`null`，且只能有一个`null`键，但允许多个`null`值。这使得在某些场景下使用`HashMap`更加灵活。
-
-**迭代器的一致性**
-
-- **`Hashtable`**：在迭代过程中，如果对`Hashtable`进行结构修改（如添加、删除元素），会抛出`ConcurrentModificationException`异常。
-- **`HashMap`**：在迭代过程中，如果使用迭代器的`remove`方法来删除元素，不会抛出异常，迭代器会正常工作。但如果使用`HashMap`的`remove`方法直接删除元素，同样会抛出`ConcurrentModificationException`异常。
-
-**性能方面**
-
-- **`Hashtable`**：由于其线程安全的特性，在多线程环境下需要进行额外的同步操作，因此在单线程环境下性能相对`HashMap`稍差一些。
-- **`HashMap`**：在单线程环境下，由于不需要进行同步操作，其性能通常比`Hashtable`要高。
-
-**初始容量和扩容机制**
-
-- **`Hashtable`**：默认初始容量为 11，当元素数量达到容量的一定比例（通常为 75%）时，会进行扩容操作，扩容后的容量为原来的 2 倍加 1。
-- **`HashMap`**：默认初始容量为 16，当元素数量超过容量乘以加载因子（默认加载因子为 0.75）时，会进行扩容操作，扩容后的容量为原来的 2 倍。
-
-**继承关系**
-
-- **`Hashtable`**：继承自`Dictionary`类，实现了`Map`接口。
-- **`HashMap`**：直接实现了`Map`接口。
-
-**适用场景**
-
-- **`Hashtable`**：适用于在多线程环境下对数据进行共享和操作的场景，需要保证数据的一致性和完整性。
-- **`HashMap`**：适用于在单线程环境下对数据进行快速读写操作的场景，对性能要求较高，且需要灵活处理`null`键值的情况。
-
-<br/>
-
 HashMap的 `JDK1.7` 和 `JDK1.8` 有什么区别
 
 - JDK1.8之前采用的是拉链法。拉链法：将链表和数组相结合。也就是说创建一个链表数组，数组中每一格就是一个链表。若遇到哈希冲突，则将冲突的值加到链表中即可。
@@ -151,10 +110,12 @@ HashMap的 `JDK1.7` 和 `JDK1.8` 有什么区别
 
 <br/>
 
-HashSet与HashMap的区别 
+HashSet 与 HashMap 的区别 
 
 - HashSet实现了Set接口, 仅存储对象; HashMap实现了 Map接口, 存储的是键值对.
 - HashSet 底层其实是用 HashMap 实现存储的, HashSet 封装了一系列 HashMap的方法. 依靠 HashMap 来存储元素值,(利用hashMap的key键进行存储), 而 value值默认为 Object 对象. 所以HashSet  也不允许出现重复值, 判断标准和 HashMap 判断标准相同, 两个元素的 hashCode 相等并且通过 equals() 方法返回 true.
+
+
 
 并发
 ----
@@ -353,7 +314,7 @@ ThreadLocal 内部维护了一个 ThreadLocalMap 类型的成员变量来存储�
 
 在系统中，我们创建和销毁一个线程的成本是相对比较高的，我们需要最小的线程数来保证一个最大的吞吐量。线程数肯定不是设置的越多越好，但是线程数设计小了，那来一个请求的峰值，我们就频繁的创建线程，就起不到线程池这个缓冲的效果。线程池中阻塞队列的设计就是尽量在高吞吐量的情况下达到一个缓冲的效果。核心线程我们希望一直执行任务，而来了一个峰值之后，不是直接去创建救急线程，而是放到队列中做一个缓冲。这样就能一定程度上应对这种峰值导致了 CPU 负载的频繁变化，达到削峰的效果。
 
-
+<br/>
 
 MQ 也能达到削峰的效果，线程池和MQ 应该如何选择？
 
@@ -407,7 +368,7 @@ ConcurrentHashMap 是一种线程安全的高效Map集合，jdk1.7和1.8也做�
 
 Segment 是一种可重入的锁 ReentrantLock，每个 Segment 守护一个HashEntry 数组里得元 素，当对 HashEntry 数组的数据进行修改时，必须首先获得对应的 Segment 锁
 
-在JDK1.8中的 ConcurrentHashMap 做了较大的优化。首先是它的数据结构与jdk1.8的 hashMap 数据结构完全一致。其次是放弃了 Segment 的设计，取而代之的是采用 Node + CAS + Synchronized 来保证并发安全进行实现，CAS 用于控制数组节点的添加。synchronized 锁定当前链表或红黑二叉树的首节点，这样只要 hash 不冲突，就不会产生并发 , 效率得到提升。
+在JDK1.8中的 ConcurrentHashMap 做了较大的优化。首先是它的数据结构与 Jdk1.8的 HashMap 数据结构完全一致。其次是放弃了 Segment 的设计，取而代之的是采用 Node + CAS + Synchronized 来保证并发安全进行实现，CAS 用于控制数组节点的添加。synchronized 锁定当前链表或红黑二叉树的首节点，这样只要 hash 不冲突，就不会产生并发 , 效率得到提升。
 
 
 
@@ -1100,7 +1061,7 @@ Spring 中的事务传播行为
 
 Spring 事务失效有哪些场景
 
-因为事务是由 Spring 的 AOP 动态代理来实现的，如果类没有被 Spring 管理，就不能使用Spring 的事务，如果事务不是 public 修饰则无法进行动态代理，如果是非事务方法调用事务方法，则拿到的类不是动态代理类，也无法使用 Spring 事务。
+因为事务是由 Spring 的 AOP 来实现的，如果类没有被 Spring 管理，就不能使用 Spring 的事务，如果事务不是 public 修饰则无法进行动态代理，如果是非事务方法调用事务方法，则拿到的类不是动态代理类，也无法使用 Spring 事务。
 
 还有一种情况是 Spring 没有感受到异常或者异常类型和事务声明的异常不符合，事务也会失效。
 
